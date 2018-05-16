@@ -1,7 +1,7 @@
 from itertools import chain, product
 from numpy     import prod
-from enum      import Enum,auto
-from typing    import List
+from enum      import Enum, auto
+from typing    import Iterable, List, Tuple
 
 from .aln        import alignment
 from .aln_matrix import aln_matrix
@@ -160,14 +160,14 @@ def get_scored_candidate_links_for_entry_pair(matrix: aln_matrix, index_lhs: int
 	candidate_links = get_candidate_links_for_entry_pair( matrix, index_lhs, index_rhs )
 	return score_candidate_links( matrix, index_lhs, index_rhs, candidate_links )
 
-def get_indexed_scored_candidate_links_for_entry_pair(matrix: aln_matrix, index_lhs: int, index_rhs: int) -> List:
+def get_indexed_scored_candidate_links_for_entry_pair(matrix: aln_matrix, index_lhs: int, index_rhs: int) -> Iterable[Tuple[int,int,int,int,float]]:
 	return (
 		    ( index_lhs, index_rhs, i, j, score )
 		for i, j, score
 		in  get_scored_candidate_links_for_entry_pair( matrix, index_lhs, index_rhs )
 	)
 
-def get_scored_candidate_links(matrix: aln_matrix) -> None:
+def get_scored_candidate_links(matrix: aln_matrix) -> List[Tuple[int,int,int,int,float]]:
 	return list( chain.from_iterable(
 		    get_indexed_scored_candidate_links_for_entry_pair( matrix, index_lhs, index_rhs)
 		for index_lhs, index_rhs
