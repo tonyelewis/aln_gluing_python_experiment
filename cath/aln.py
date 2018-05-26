@@ -118,6 +118,7 @@ def read_ssap_alignment(aln_filename):
 	result = alignment( 2 )
 	for entry in get_index_based_equiv_rows( parsed_ssap_aln_data ):
 		score = entry.pop()
+		score = 1 # ************************ DON'T LEAVE THIS LIKE THIS !!! ***********************************
 		result.append( entry, score )
 
 	return [

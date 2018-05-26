@@ -121,13 +121,13 @@ class multi_equiv_list:
 			new_entry.max = min( ( i for i in ( group_a_entry.max, group_b_entry.max ) if i is not None ), default=None )
 			new_group.append( new_entry )
 			# if group_
-			print(repr({
-				'entry' : entry,
-				'group_a_entry' : group_a_entry,
-				'group_b_entry' : group_b_entry,
-				'new_entry' : new_entry,
-			}))
-		print(repr(new_group))
+			# print(repr({
+			# 	'entry' : entry,
+			# 	'group_a_entry' : group_a_entry,
+			# 	'group_b_entry' : group_b_entry,
+			# 	'new_entry' : new_entry,
+			# }))
+		# print(repr(new_group))
 		self.groups[group_a_idx] = new_group
 		for entry, group_b_entry in enumerate(self.groups[group_b_idx]):
 			if group_b_entry.idx is not None:
@@ -185,10 +185,10 @@ class multi_equiv_list:
 		# self.group_indices_by_entry[ rhs.entry ][ rhs.index ] = group_id
 		copy_of_self = deepcopy( self )
 		copy_of_self.do_link( lhs, rhs )
-		get_alignment( copy_of_self )
+		get_psuedo_alignment( copy_of_self )
 		self.do_link( lhs, rhs )
 
-def get_alignment(meq: multi_equiv_list):
+def get_psuedo_alignment(meq: multi_equiv_list):
 	sorted_groups = sorted( [ i for i in meq.groups if i is not None ] )
 	result = []
 	if len( sorted_groups ):
@@ -216,3 +216,5 @@ def get_alignment(meq: multi_equiv_list):
 			result.append( tuple( group_val.idx for group_val in group ) )
 
 	return result
+
+

@@ -1,6 +1,6 @@
 from itertools import product
 from os        import path
-from typing    import List
+from typing    import List, Tuple
 
 from . import aln
 from . import pdb_sequence
@@ -59,7 +59,8 @@ class aln_matrix:
 	def read_alignments(self,dir,suffix='.list'):
 		self.ids.sort( key=less_to_key( lambda x, y: _aln_file_exists( dir, x, y, suffix ) ) )
 
-		MAX_MATRIX_DIM_SIZE = 10
+		# MAX_MATRIX_DIM_SIZE = 10
+		MAX_MATRIX_DIM_SIZE = 20
 		del self.ids[ MAX_MATRIX_DIM_SIZE: ]
 
 		for (index_a, index_b) in product(range(len(self.ids)), range(len(self.ids))):
@@ -76,3 +77,24 @@ class aln_matrix:
 
 			self.alignments[ index_a ][ index_b ] = alignment
 			self.alignments[ index_b ][ index_a ] = aln.flip_copy( alignment )
+
+	def get_str_of_pseudo_alignment(self, pseudo_alignment: List[Tuple[int]]) -> str:
+		if not len( pseudo_alignment ):
+			return ''
+		seq_strs = [ str() for i in pseudo_alignment[0] ]
+		for index, _ in enumerate(pseudo_alignment):
+			for entry, _ in enumerate(pseudo_alignment[index]):
+				seq_index = pseudo_alignment[index][entry]
+				letter = self.seqs[entry][seq_index].amino_acid if seq_index is not None else '-'
+				seq_strs[entry] += letter
+		result = str()
+		for entry, _ in enumerate(pseudo_alignment[index]):
+			result += '>' + self.ids[ entry ] + "\n"
+			result += seq_strs[entry] + "\n"
+		# print(repr(pseudo_alignment))
+		# print(repr(seq_strs))
+		# print(result)
+		# exit()
+		return result
+
+

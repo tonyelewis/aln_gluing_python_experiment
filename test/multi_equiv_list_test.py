@@ -9,7 +9,7 @@ from pytest import raises
 sys.path.append( os.path.join(os.path.dirname(__file__), '..' ) )
 
 # To be tested
-from cath.multi_equiv_list import _equiv_entry, get_alignment, multi_equiv_list, entry_res_id
+from cath.multi_equiv_list import _equiv_entry, get_psuedo_alignment, multi_equiv_list, entry_res_id
 
 def test_equiv_entry():
 	assert( _equiv_entry(min=5,idx=5,max=5).min == 5 )
@@ -65,7 +65,7 @@ def test_align_pair():
 
 	meq.link( entry_res_id( 0, 1 ), entry_res_id( 1, 2 ) )
 
-	assert( get_alignment( meq ) == [
+	assert( get_psuedo_alignment( meq ) == [
 		(    0, 0 ),
 		( None, 1 ),
 		(    1, 2 ),
@@ -80,7 +80,7 @@ def test_align_triple():
 
 	meq.link( entry_res_id( 1, 2 ), entry_res_id( 0, 2 ) )
 	meq.link( entry_res_id( 2, 2 ), entry_res_id( 1, 2 ) )
-	assert( get_alignment( meq ) == [
+	assert( get_psuedo_alignment( meq ) == [
 		(    0,    0,    0 ),
 		(    1, None,    1 ),
 		( None,    1, None ),
@@ -93,7 +93,7 @@ def test_align_join_joins():
 	meq.link( entry_res_id( 2, 0 ), entry_res_id( 3, 0 ) )
 	meq.link( entry_res_id( 1, 0 ), entry_res_id( 2, 0 ) )
 
-	assert( get_alignment( meq ) == [
+	assert( get_psuedo_alignment( meq ) == [
 		(    0,    0,    0,    0 ),
 	] )
 

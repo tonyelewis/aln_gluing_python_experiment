@@ -3,8 +3,9 @@ from numpy     import prod
 from enum      import Enum, auto
 from typing    import Iterable, List, Tuple
 
-from .aln        import alignment
-from .aln_matrix import aln_matrix
+from .aln              import alignment
+from .aln_matrix       import aln_matrix
+from .multi_equiv_list import entry_res_id, get_psuedo_alignment, multi_equiv_list
 
 class ScoreComboMethod(Enum):
 	MAX       = auto()
@@ -178,7 +179,21 @@ def get_scored_candidate_links(matrix: aln_matrix) -> List[Tuple[int,int,int,int
 def glue_from_aln_matrix(matrix: aln_matrix) -> None:
 	candidate_links = get_scored_candidate_links( matrix )
 	candidate_links = sorted( get_scored_candidate_links( matrix ), reverse=True, key=lambda x: x[ 4 ] )
-	print(repr(candidate_links))
+
+	lengths_genexp = [ len( i ) for i in matrix.seqs if i is not None ]
+	print(repr(lengths_genexp))
+	meq = multi_equiv_list( *lengths_genexp )
+
+	for ( ctr, ( entry_a, entry_b, index_a, index_b, score ) ) in enumerate(candidate_links):
+		# print(repr([entry_a, entry_b, index_a, index_b, score]))
+		try:
+			meq.link( entry_res_id( entry_a, index_a ), entry_res_id( entry_b, index_b ) )
+		except:
+			pass
+		if ctr % 100 == 0:
+			print(matrix.get_str_of_pseudo_alignment(get_psuedo_alignment(meq)))
+			print(score)
+	print(matrix.get_str_of_pseudo_alignment(get_psuedo_alignment(meq)))
 	exit()
 
 
