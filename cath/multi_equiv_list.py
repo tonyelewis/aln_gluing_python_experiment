@@ -2,31 +2,25 @@ from array       import array
 from collections import namedtuple
 from copy        import deepcopy
 from functools   import total_ordering
-from typing      import List, Tuple
+from typing      import List, Optional, Tuple
 
-entry_res_id = namedtuple( 'entry_res_id', [ 'entry', 'index' ] )
+entry_res_id = namedtuple('entry_res_id', ['entry', 'index'])
+
 
 @total_ordering
 class _equiv_entry:
+
 	def __init__(self, *, idx: int = None, min: int = None, max: int = None):
-		self._idx = None
-		self._min = None
-		self._max = None
-		self.idx  = idx
-		self.min  = min
-		self.max  = max
+		self._idx: Optional[int] = None
+		self._min: Optional[int] = None
+		self._max: Optional[int] = None
+		self.idx = idx
+		self.min = min
+		self.max = max
 
 	@property
 	def idx(self):
 		return self._idx
-
-	@property
-	def min(self):
-		return self._min
-
-	@property
-	def max(self):
-		return self._max
 
 	@idx.setter
 	def idx(self, value: int):
@@ -38,6 +32,10 @@ class _equiv_entry:
 		# print( 'Setting idx to', value )
 		self._idx = value
 
+	@property
+	def min(self):
+		return self._min
+
 	@min.setter
 	def min(self, value: int):
 		if value is not None:
@@ -47,6 +45,10 @@ class _equiv_entry:
 				raise Exception( "Cannot set _equiv_entry's min to %d because max is %d" % ( value, self.max ) )
 		# print( 'Setting min to', value )
 		self._min = value
+
+	@property
+	def max(self):
+		return self._max
 
 	@max.setter
 	def max(self, value: int):
@@ -87,7 +89,9 @@ class _equiv_entry:
 		return not( self.__lt__( other ) ) and not( other.__lt__( self ) )
 
 class multi_equiv_list:
-	
+	group_indices_by_entry: List[List[Optional[int]]]
+	groups: List[Optional[List[_equiv_entry]]]
+
 	def __init__(self, *lengths: int):
 		if not len( lengths ):
 			raise Exception("Cannot build a multi_equiv_list with 0 entries")

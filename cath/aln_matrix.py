@@ -1,9 +1,9 @@
 from itertools import product
 from os        import path
-from typing    import List, Tuple
+from typing    import Dict, List, Optional, Tuple
 
-from . import aln
-from . import pdb_sequence
+from .aln import alignment, flip_copy, read_ssap_alignment
+from .pdb_sequence import pdb_sequence
 
 def less_to_key(is_less_than):
 	'Convert a less_than= function into a key= function'
@@ -13,15 +13,15 @@ def less_to_key(is_less_than):
 		def __lt__(self, other):
 			return is_less_than( self.obj, other.obj )
 		def __gt__(self, other):
-			return is_less_than(other.obj, self.obj)
+			return is_less_than( other.obj, self.obj)
 		def __ne__(self, other):
-			return self.__lt__( self.obj, other.obj ) or self.__gt__( other.obj, self.obj )
+			return self.__lt__( other.obj ) or self.__gt__( self.obj )
 		def __eq__(self, other):
-			return not self.__ne__( self.obj, other.obj )
+			return not self.__ne__( other.obj )
 		def __le__(self, other):
-			return not self.__gt__( self.obj, other.obj )
+			return not self.__gt__( other.obj )
 		def __ge__(self, other):
-			return not self.__lt__( self.obj, other.obj )
+			return not self.__lt__( other.obj )
 	return K
 
 def _aln_file(dir,id1,id2,suffix):
@@ -33,9 +33,10 @@ def _aln_file_exists(dir,id1,id2,suffix):
 
 class aln_matrix:
 	def __init__(self, ids):
-		self.ids        = sorted(ids)
-		self.seqs       =   [ None for x in range( len( self.ids ) ) ]
-		self.alignments = [ [ None for x in range( len( self.ids ) ) ] for x in range( len( self.ids ) ) ]
+		self.ids: List[str] = sorted(ids)
+		self.seqs: List[Optional[pdb_sequence]] = [ None for x in range(len(self.ids))]
+		self.alignments: List[List[Optional[alignment]]] = [ [None for x in range(len(self.ids))] for x in range(len(self.ids))]
+		self.index_of_id: Dict[str, int] = {}
 		self._reset_indices_of_id()
 
 	def _reset_indices_of_id(self):
@@ -59,8 +60,12 @@ class aln_matrix:
 	def read_alignments(self,dir,suffix='.list'):
 		self.ids.sort( key=less_to_key( lambda x, y: _aln_file_exists( dir, x, y, suffix ) ) )
 
+		# print( len( self.ids ) )
+
 		# MAX_MATRIX_DIM_SIZE = 10
-		MAX_MATRIX_DIM_SIZE = 20
+		# MAX_MATRIX_DIM_SIZE = 20
+		MAX_MATRIX_DIM_SIZE = 30
+		print( f'***** WARNING ****** Currently limiting the matrix to {MAX_MATRIX_DIM_SIZE}' )
 		del self.ids[ MAX_MATRIX_DIM_SIZE: ]
 
 		for (index_a, index_b) in product(range(len(self.ids)), range(len(self.ids))):
@@ -70,13 +75,13 @@ class aln_matrix:
 			id_a = self.ids[ index_a ]
 			id_b = self.ids[ index_b ]
 			file = path.join( dir, id_a + id_b + suffix)
-			[seq_a, seq_b, alignment] = aln.read_ssap_alignment( _aln_file( dir, id_a, id_b, suffix ) )
+			[seq_a, seq_b, alignment] = read_ssap_alignment( _aln_file( dir, id_a, id_b, suffix ) )
 
 			self._insert_or_check_seq( index_a, seq_a )
 			self._insert_or_check_seq( index_b, seq_b )
 
 			self.alignments[ index_a ][ index_b ] = alignment
-			self.alignments[ index_b ][ index_a ] = aln.flip_copy( alignment )
+			self.alignments[ index_b ][ index_a ] = flip_copy( alignment )
 
 	def get_str_of_pseudo_alignment(self, pseudo_alignment: List[Tuple[int]]) -> str:
 		if not len( pseudo_alignment ):

@@ -1,7 +1,7 @@
 from itertools import chain, product
 from numpy     import prod
 from enum      import Enum, auto
-from typing    import Iterable, List, Tuple
+from typing    import Iterable, List, Optional, Tuple
 
 from .aln              import alignment
 from .aln_matrix       import aln_matrix
@@ -12,7 +12,7 @@ class ScoreComboMethod(Enum):
 	GEOM_MEAN = auto()
 	MIN       = auto()
 
-def combine_scores(method: ScoreComboMethod, *scores: float) -> float:
+def combine_scores(method: ScoreComboMethod, *scores: Optional[float]) -> float:
 	if not len( scores ):
 		raise Exception("Can't combine empty list of scores")
 	if None in scores:
@@ -191,8 +191,9 @@ def glue_from_aln_matrix(matrix: aln_matrix) -> None:
 		except:
 			pass
 		if ctr % 100 == 0:
+			percentage_through = 100.0 * float( ctr ) / float( len( candidate_links ) )
 			print(matrix.get_str_of_pseudo_alignment(get_psuedo_alignment(meq)))
-			print(score)
+			print( f'Progress: {percentage_through:5.2f}%, score: {score:10.3f}' )
 	print(matrix.get_str_of_pseudo_alignment(get_psuedo_alignment(meq)))
 	exit()
 
